@@ -36,6 +36,7 @@ services:
     shm_size: "1g"
     stop_grace_period: 1s
     environment:
+      - DISPLAY=${DISPLAY}
       - WAYLAND_DISPLAY=wayland-0
       - XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR
       - PULSE_SERVER=unix:/run/user/${LOCAL_UID}/pulse/native
@@ -75,4 +76,3 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-
