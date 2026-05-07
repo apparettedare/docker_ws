@@ -135,6 +135,8 @@ RUN apt-get clean &&\
         rm -rf /etc/apt/apt.conf.d/docker-clean; \
     fi;
 
+RUN echo "export QT_QPA_PLATFORM=xcb" >> /home/${USERNAME}/.bashrc
+
 # Switch back to the user
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
