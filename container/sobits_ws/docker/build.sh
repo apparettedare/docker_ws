@@ -100,7 +100,7 @@ source /opt/ros/${ROS_DISTRO}/setup.bash
 source ~/${ROS_WORKSPACE}/install/setup.bash
 source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
 export ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
-alias cb='CURRENT_DIR=\`pwd\` && cd ~/${ROS_WORKSPACE}/ && colcon build --symlink-install && source ~/.bashrc && cd \${CURRENT_DIR}'
+alias cb='cd ~/${ROS_WORKSPACE}/ && colcon build --symlink-install && source ~/.bashrc'
 EOF
     fi
 fi
