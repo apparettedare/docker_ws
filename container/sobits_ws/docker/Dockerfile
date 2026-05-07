@@ -99,16 +99,28 @@ ARG ROS_DOMAIN_ID=0
 ARG INSTALL_GAZEBO=true
 ARG ROS_WORKSPACE=colcon_ws
 
-COPY --from=ros_prebuilt /etc/apt/sources.list.d/ros* /etc/apt/sources.list.d/
-COPY --from=ros_prebuilt /usr/share/keyrings/ros* /usr/share/keyrings/
 COPY --chown=${USERNAME}:${USERNAME} ros_entrypoint.sh /home/${USERNAME}/ros_entrypoint.sh
 
 USER root
-# Configure ROS environment
-RUN apt-get update && apt-get install -y \
-        ros-${ROS_DISTRO}-desktop \
-        ros-dev-tools && \
-    rosdep init
+
+RUN apt update && apt install locales && \
+    locale-gen en_US en_US.UTF-8 && \
+    update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 && \
+    add-apt-repository universe
+
+RUN apt update && apt install curl -y && \
+    export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F'"' '{print $4}') && \
+    curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb" && \
+    dpkg -i /tmp/ros2-apt-source.deb
+
+
+RUN apt update && apt install ros-dev-tools -y
+
+RUN apt update && apt install ros2-testing-apt-source -y
+
+RUN apt update && apt install ros-lyrical-desktop -y
+
+RUN rosdep init
 
 # Install Gazebo if specified
 RUN if [ "${INSTALL_GAZEBO}" = "true" ]; then \
@@ -134,6 +146,8 @@ RUN apt-get clean &&\
     if [ -f /etc/apt/apt.conf.d/docker-clean ]; then \
         rm -rf /etc/apt/apt.conf.d/docker-clean; \
     fi;
+    
+RUN echo "export QT_QPA_PLATFORM=xcb" >> /home/${USERNAME}/.bashrc
 
 # Switch back to the user
 USER ${USERNAME}
